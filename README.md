@@ -1,15 +1,21 @@
 In src folder do:
 
 ./autogen.sh
+
 ./configure
+
 make
+
 make install -j8
 
 to set up using CaloEmulatorTreeMaker.cc
 
 Run Fun4All_Calo_Emulator.C in macros folder:
+
 Go to ‘triggerCondor.sub’
+
 Change run number in arguments and frome queue filename 
+
 
 Go to ‘triggerCondor.sh’ change MYINSTALL to your install directory 
 
@@ -27,22 +33,26 @@ And
 QAoutput_DST_CALO_run2pp_new_2024p001-00044686-*.root where * = segment number
 
 First move all the ‘QAoutput..’ into a different folder:
+
 cd output/runnumber
+
 mkdir qaOutput
+
 mv QAoutput_DST_CALO_run2pp_new_2024p001-00044686-*.root .
 
 
 And then go to macros folder where there is createListFile.cpp
 
 Compile the program:
+
 g++ -std=c++17 -o createListFile createListFile.cpp
 
 
 
 Enter:
-/*
-make list file: ./createListFile /sphenix/u/patsfan753/scratch/analysis/calotriggeremulator/output/44630 44630
- */
+
+./createListFile /sphenix/u/patsfan753/scratch/analysis/calotriggeremulator/output/44630 44630
+
 
 
 This will create a filelist in your base directory with the CaloOutput information to be run in condor.
