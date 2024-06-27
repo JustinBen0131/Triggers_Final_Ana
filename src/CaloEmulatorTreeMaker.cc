@@ -23,6 +23,7 @@
 #include <phool/PHObject.h>
 #include <phool/getClass.h>
 // G4Cells includes
+#include <fstream> // Include the fstream library to handle file I/O
 
 #include <iostream>
 
@@ -30,24 +31,18 @@
 
 //____________________________________________________________________________..
 CaloEmulatorTreeMaker::CaloEmulatorTreeMaker(const std::string &name, const std::string &outfilename):
-  SubsysReco(name)
-  
-{
+  SubsysReco(name) {
   useCaloTowerBuilder = false;
   useLL1=true;
   _foutname = outfilename;
 }
 
 //____________________________________________________________________________..
-CaloEmulatorTreeMaker::~CaloEmulatorTreeMaker()
-{
-
+CaloEmulatorTreeMaker::~CaloEmulatorTreeMaker() {
 }
 
 //____________________________________________________________________________..
-int CaloEmulatorTreeMaker::Init(PHCompositeNode *topNode)
-{
-
+int CaloEmulatorTreeMaker::Init(PHCompositeNode *topNode) {
   m_ll1_nodename = "LL1OUT_" + _trigger;
   m_ll1_raw_nodename = "LL1OUT_RAW_" + _trigger;
   if (Verbosity()) std::cout << __FUNCTION__ << __LINE__<<std::endl;
@@ -56,9 +51,7 @@ int CaloEmulatorTreeMaker::Init(PHCompositeNode *topNode)
   std::cout << " making a file = " <<  _foutname.c_str() << " , _f = " << _f << std::endl;
   
   _tree = new TTree("ttree","a persevering date tree");
-
-  if (useLL1)
-    {
+  if (useLL1) {
       _tree->Branch("trigger_sum_emcal",b_trigger_sum_emcal,"trigger_sum_emcal[6144]/i");
       _tree->Branch("trigger_sumkey_emcal",b_trigger_sumkey_emcal,"trigger_sumkey_emcal[6144]/i");
       _tree->Branch("trigger_sum_smpl_emcal",b_trigger_sum_smpl_emcal,"trigger_sum_smpl_emcal[6144]/i");
@@ -121,6 +114,8 @@ int CaloEmulatorTreeMaker::Init(PHCompositeNode *topNode)
   _tree->Branch("emcal_time",&b_emcal_time);
   _tree->Branch("emcal_phibin",&b_emcal_phibin);
   _tree->Branch("emcal_etabin",&b_emcal_etabin);
+
+    
   _tree->Branch("hcalin_good",&b_hcalin_good);
   _tree->Branch("hcalin_energy",&b_hcalin_energy);
   _tree->Branch("hcalin_time",&b_hcalin_time);
@@ -154,22 +149,18 @@ int CaloEmulatorTreeMaker::Init(PHCompositeNode *topNode)
   return Fun4AllReturnCodes::EVENT_OK;
 }
 
-//____________________________________________________________________________..
-int CaloEmulatorTreeMaker::InitRun(PHCompositeNode *topNode)
-{
+int CaloEmulatorTreeMaker::InitRun(PHCompositeNode *topNode) {
   if (Verbosity()) std::cout << __FUNCTION__ << __LINE__<<std::endl;
   return Fun4AllReturnCodes::EVENT_OK;
 }
-
-//____________________________________________________________________________..
 
 void CaloEmulatorTreeMaker::SetVerbosity(int verbo){
   _verbosity = verbo;
   return;
 }
 
-void CaloEmulatorTreeMaker::reset_tree_vars()
-{
+void CaloEmulatorTreeMaker::reset_tree_vars() {
+    
   if (Verbosity()) std::cout << __FUNCTION__ << __LINE__<<std::endl;
   b_cluster_n = 0;
   b_cluster_prob.clear();
@@ -185,6 +176,8 @@ void CaloEmulatorTreeMaker::reset_tree_vars()
   b_emcal_time.clear();
   b_emcal_phibin.clear();
   b_emcal_etabin.clear();
+    
+    
   b_hcalin_good.clear();
   b_hcalin_energy.clear();
   b_hcalin_time.clear();
@@ -199,8 +192,7 @@ void CaloEmulatorTreeMaker::reset_tree_vars()
   return;
 }
 
-int CaloEmulatorTreeMaker::process_event(PHCompositeNode *topNode)
-{
+int CaloEmulatorTreeMaker::process_event(PHCompositeNode *topNode) {
 
   if (Verbosity()) std::cout << __FILE__ << " "<< __LINE__<<" "<<std::endl;
   int i;
@@ -232,6 +224,7 @@ int CaloEmulatorTreeMaker::process_event(PHCompositeNode *topNode)
   _trigger_primitives_hcalout = findNode::getClass<TriggerPrimitiveContainer>(topNode, "TRIGGERPRIMITIVES_HCALOUT");
 
   _trigger_primitives_hcal_ll1 = findNode::getClass<TriggerPrimitiveContainer>(topNode, "TRIGGERPRIMITIVES_HCAL_LL1");
+    
 
   GlobalVertexMap* vertexmap = findNode::getClass<GlobalVertexMap>(topNode, "GlobalVertexMap");
   if (!vertexmap)
@@ -301,36 +294,41 @@ int CaloEmulatorTreeMaker::process_event(PHCompositeNode *topNode)
   std::vector<unsigned int> *sum;
   TriggerPrimitiveContainerv1::Range range;
   TriggerPrimitivev1::Range srange;
+    
+    
+
   if (_trigger_primitives_emcal)
-    {
+  {
       i = 0;
       range = _trigger_primitives_emcal->getTriggerPrimitives();
       for (TriggerPrimitiveContainerv1::Iter iter = range.first ; iter != range.second ; ++iter)
-    {
-      _trigger_primitive = (*iter).second;
-      srange = _trigger_primitive->getSums();
-      for (TriggerPrimitive::Iter siter = srange.first; siter != srange.second; ++siter)
-        {
-          sum = (*siter).second;
-          it = max_element(sum->begin(), sum->end());
-          unsigned int summ = 0;
-          unsigned int sumk = 0;
-          unsigned int sums = 0;
-          
-          if (it != sum->end())
-        {
-          summ = (*it);
-          sumk = (*siter).first;
-          sums = std::distance(sum->begin(), it);
-        }
-          b_trigger_sum_emcal[i] = summ;
-          b_trigger_sumkey_emcal[i] = sumk;
-          b_trigger_sum_smpl_emcal[i] = sums;
-          
-          i++;
-        }
-    }
-    }
+      {
+          _trigger_primitive = (*iter).second;
+          srange = _trigger_primitive->getSums();
+          for (TriggerPrimitive::Iter siter = srange.first; siter != srange.second; ++siter)
+          {
+              sum = (*siter).second;
+              it = max_element(sum->begin(), sum->end());
+              unsigned int summ = 0;
+              unsigned int sumk = 0;
+              unsigned int sums = 0;
+              
+              if (it != sum->end())
+              {
+                  summ = (*it);
+                  sumk = (*siter).first;
+                  sums = std::distance(sum->begin(), it);
+              }
+              b_trigger_sum_emcal[i] = summ;
+              b_trigger_sumkey_emcal[i] = sumk;
+              b_trigger_sum_smpl_emcal[i] = sums;
+
+              
+              i++;
+          }
+      }
+      
+  }
     
  if (_trigger_primitives_hcalin)
     {
@@ -673,34 +671,30 @@ int CaloEmulatorTreeMaker::process_event(PHCompositeNode *topNode)
       _towers = findNode::getClass<TowerInfoContainer>(topNode, "TOWERINFO_CALIB_HCALIN");
 
       int size;
-      if (_towers)
-    {
+      if (_towers) {
 
-      size = _towers->size(); //online towers should be the same!
-      for (int channel = 0; channel < size;channel++)
-        {
-          _tower = _towers->get_tower_at_channel(channel);
-          float energy = _tower->get_energy();
-          float time = _tower->get_time();
-          short good = (_tower->get_isGood() ? 1:0);
-          unsigned int towerkey = _towers->encode_key(channel);
-          int ieta = _towers->getTowerEtaBin(towerkey);
-          int iphi = _towers->getTowerPhiBin(towerkey);
+        size = _towers->size(); //online towers should be the same!
+        for (int channel = 0; channel < size;channel++) {
+            _tower = _towers->get_tower_at_channel(channel);
+            float energy = _tower->get_energy();
+            float time = _tower->get_time();
+            short good = (_tower->get_isGood() ? 1:0);
+            unsigned int towerkey = _towers->encode_key(channel);
+            int ieta = _towers->getTowerEtaBin(towerkey);
+            int iphi = _towers->getTowerPhiBin(towerkey);
 
-          b_hcalin_good.push_back(good);
-          b_hcalin_energy.push_back(energy);
-          b_hcalin_time.push_back(time);
-          b_hcalin_etabin.push_back(ieta);
-          b_hcalin_phibin.push_back(iphi);
+            b_hcalin_good.push_back(good);
+            b_hcalin_energy.push_back(energy);
+            b_hcalin_time.push_back(time);
+            b_hcalin_etabin.push_back(ieta);
+            b_hcalin_phibin.push_back(iphi);
         }
     }
-      _towers = findNode::getClass<TowerInfoContainer>(topNode, "TOWERINFO_CALIB_HCALOUT");
-      if (_towers)
-    {
-
+        
+    _towers = findNode::getClass<TowerInfoContainer>(topNode, "TOWERINFO_CALIB_HCALOUT");
+    if (_towers) {
       size = _towers->size(); //online towers should be the same!
-      for (int channel = 0; channel < size;channel++)
-        {
+      for (int channel = 0; channel < size;channel++) {
           _tower = _towers->get_tower_at_channel(channel);
           float energy = _tower->get_energy();
           float time = _tower->get_time();
@@ -715,26 +709,30 @@ int CaloEmulatorTreeMaker::process_event(PHCompositeNode *topNode)
           b_hcalout_phibin.push_back(iphi);
         }
     }
-      _towers = findNode::getClass<TowerInfoContainer>(topNode, "TOWERINFO_CALIB_CEMC");
-      if (_towers)
-    {
-      size = _towers->size(); //online towers should be the same!
-      for (int channel = 0; channel < size;channel++)
-        {
-          _tower = _towers->get_tower_at_channel(channel);
-          float energy = _tower->get_energy();
-          float time = _tower->get_time();
-          unsigned int towerkey = _towers->encode_key(channel);
-          int ieta = _towers->getTowerEtaBin(towerkey);
-          int iphi = _towers->getTowerPhiBin(towerkey);
-          short good = (_tower->get_isGood() ? 1:0);
-          b_emcal_good.push_back(good);
-          b_emcal_energy.push_back(energy);
-          b_emcal_time.push_back(time);
-          b_emcal_etabin.push_back(ieta);
-          b_emcal_phibin.push_back(iphi);
+        
+    _towers = findNode::getClass<TowerInfoContainer>(topNode, "TOWERINFO_CALIB_CEMC"); //LOOP OVER EMCAL
+    if (_towers) {
+        size = _towers->size(); //online towers should be the same!
+        std::cout << "Processing " << size << " towers:" << std::endl;
+        
+        for (int channel = 0; channel < size;channel++) { //loop over each tower in EMCal
+            _tower = _towers->get_tower_at_channel(channel);
+            float energy = _tower->get_energy(); //get the energy of each tower
+            float time = _tower->get_time();
+            unsigned int towerkey = _towers->encode_key(channel); //get the towerkey for the specific tower
+            int ieta = _towers->getTowerEtaBin(towerkey); //get the eta bin key for the specific tower
+            int iphi = _towers->getTowerPhiBin(towerkey); //and phi bin
+            short good = (_tower->get_isGood() ? 1:0); //check if the tower is good
+            
+            b_emcal_good.push_back(good); //fill vector in order of tower number for each below
+            b_emcal_energy.push_back(energy);
+            b_emcal_time.push_back(time);
+            b_emcal_etabin.push_back(ieta);
+            b_emcal_phibin.push_back(iphi);
+            
         }
     }
+        
     }
    {
 
