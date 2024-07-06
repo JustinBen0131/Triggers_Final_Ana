@@ -69,6 +69,10 @@ void CaloTriggerSegments(const char* filename, const char* output_filename, Long
     tree->SetBranchAddress("gl1_live", gl1_live);
     tree->SetBranchAddress("gl1_scaledvec", &gl1_scaledvec);
     tree->SetBranchAddress("gl1_livevec", &gl1_livevec); //equivalent to TriggerVector
+    
+    /*
+     Vectors of length 24576 for 96 * 216 towers
+     */
     tree->SetBranchAddress("emcal_energy", &emcal_energy);
     tree->SetBranchAddress("emcal_good",&emcal_good);
     tree->SetBranchAddress("cluster_ecore", &cluster_ecore);
@@ -76,6 +80,10 @@ void CaloTriggerSegments(const char* filename, const char* output_filename, Long
     tree->SetBranchAddress("emcal_etabin", &emcal_etabin);
     tree->SetBranchAddress("trigger_sum_emcal", &trigger_sum_emcal);
     tree->SetBranchAddress("trigger_sumkey_emcal", &trigger_sumkey_emcal);
+    
+    /*
+     Use for z vertex cut?
+     */
     tree->SetBranchAddress("mbd_vertex_z", &mbd_vertex_z);
 
     TH1F *histograms_ecore[64];
