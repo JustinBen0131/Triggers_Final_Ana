@@ -28,31 +28,10 @@ Go to output/runNumber (folder automatically generated into a path labeled as �
 
 CaloOutput_DST_CALO_run2pp_new_2024p001-00044686-*.root, with * = segment number
 
-And 
 
-QAoutput_DST_CALO_run2pp_new_2024p001-00044686-*.root where * = segment number
-
-First move all the ‘QAoutput..’ into a different folder:
-
-cd output/runnumber
-
-mkdir qaOutput
-
-mv QAoutput_DST_CALO_run2pp_new_2024p001-00044686-*.root .
-
-
-And then go to macros folder where there is createListFile.cpp
-
-Compile the program:
-
-g++ -std=c++17 -o createListFile createListFile.cpp
-
-
-
-Enter:
-
-./createListFile /sphenix/u/patsfan753/scratch/analysis/calotriggeremulator/output/44630 44630
-
+Go to macros folder where there is createListFile.cpp:
+run 'createListFile.cpp' with:
+root -b -q -l 'createListFile.cpp("list,of,runs") \\make sure no space between run numbers
 
 
 This will create a filelist in your base directory with the CaloOutput information to be run in condor.
