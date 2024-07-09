@@ -2,42 +2,51 @@
 #include <fstream>
 #include <filesystem>
 #include <string>
+#include <vector>
+#include <sstream>
 
 namespace fs = std::filesystem;
 
-void createListFile(const std::string& directory, const std::string& runNumber) {
-    std::string outputPath = "output/" + runNumber + "/";
-    std::string listFilePath = outputPath + runNumber + "_segmentList.list";
+void createListFile(const std::vector<std::string>& runNumbers) {
+    std::string baseOutputPath = "/sphenix/user/patsfan753/analysis/calotriggeremulator/";
 
-    // Create the output directory if it does not exist
-    fs::create_directories(outputPath);
+    for (const auto& runNumber : runNumbers) {
+        std::string runDirectory = baseOutputPath + "output/" + runNumber;
+        std::string listFilePath = baseOutputPath + runNumber + "_segmentList.list";
 
-    std::ofstream listFile(listFilePath);
-    if (!listFile.is_open()) {
-        std::cerr << "Error: Unable to open file " << listFilePath << std::endl;
-        return;
-    }
-
-    for (const auto& entry : fs::directory_iterator(directory)) {
-        if (entry.path().extension() == ".root") {
-            listFile << entry.path().string() << std::endl;
+        std::ofstream listFile(listFilePath);
+        if (!listFile.is_open()) {
+            std::cerr << "Error: Unable to open file " << listFilePath << std::endl;
+            continue;
         }
-    }
 
-    listFile.close();
-    std::cout << "List file created at " << listFilePath << std::endl;
+        for (const auto& entry : fs::directory_iterator(runDirectory)) {
+            if (entry.path().extension() == ".root") {
+                listFile << entry.path().string() << std::endl;
+            }
+        }
+
+        listFile.close();
+        std::cout << "List file created at " << listFilePath << std::endl;
+    }
 }
 
-int main(int argc, char* argv[]) {
-    if (argc != 3) {
-        std::cerr << "Usage: " << argv[0] << " <directory> <runNumber>" << std::endl;
-        return 1;
+std::vector<std::string> parseRunNumbers(const std::string& runNumbersStr) {
+    std::vector<std::string> runNumbers;
+    std::stringstream ss(runNumbersStr);
+    std::string runNumber;
+    while (std::getline(ss, runNumber, ',')) {
+        runNumbers.push_back(runNumber);
     }
+    return runNumbers;
+}
 
-    std::string directory = argv[1];
-    std::string runNumber = argv[2];
+void createListFileWrapper(const std::string& runNumbersStr) {
+    std::vector<std::string> runNumbers = parseRunNumbers(runNumbersStr);
+    createListFile(runNumbers);
+}
 
-    createListFile(directory, runNumber);
-
-    return 0;
+// ROOT-compatible main function
+void createListFile(const char* runNumbersStr) {
+    createListFileWrapper(runNumbersStr);
 }
