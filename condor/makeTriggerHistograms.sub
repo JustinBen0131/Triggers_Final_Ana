@@ -1,8 +1,0 @@
-universe                = vanilla
-executable              = makeTriggerHistograms.sh
-arguments               = 44707 $(filename) $(Cluster)
-log                     = log/job.$(Cluster).$(Process).log
-output                  = stdout/job.$(Cluster).$(Process).out
-error                   = error/job.$(Cluster).$(Process).err
-request_memory          = 7GB
-queue filename from 44707_segmentList.list
