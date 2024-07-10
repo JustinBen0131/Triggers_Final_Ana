@@ -1,8 +1,0 @@
-universe                = vanilla
-executable              = triggerCondor.sh
-arguments               = 44707 $(filename) $(Cluster)
-log                     = log/job.$(Cluster).$(Process).log
-output                  = stdout/job.$(Cluster).$(Process).out
-error                   = error/job.$(Cluster).$(Process).err
-request_memory          = 7GB
-queue filename from dst_calo_run2pp-00044707.list
