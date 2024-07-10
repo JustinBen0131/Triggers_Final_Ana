@@ -31,7 +31,7 @@ Go to ‘triggerCondor.sh’ change MYINSTALL to your install directory
 
 Make a folder called ‘output’ in directory with ‘macros’, ‘src’ and condor files
 
-Run condor_submit triggerCondor.sub
+Go into triggerCondor_submit.sh and change the list of run numbers for what ever dst lists you have in your directory
 
 
 Output generates to output/runNumber:
@@ -45,6 +45,7 @@ root -b -q -l 'createListFile.cpp("list,of,runs") \\make sure no space between r
 
 This will create a filelist in your base directory with the CaloOutput information to be run in condor.
 
-Can then run ‘CaloTriggerSegments.cpp’ by going to base directory with ‘makeTriggerHistograms.sh’ and ‘makeTriggerHistograms.sub’
+Can then run ‘CaloTriggerSegments.cpp’ by going to base directory with ‘makeTriggerHistograms.sh’ via:
+go into makeTriggerHistograms_submitJobs.sh and change list of run numbers for Calo Dsts generated in previous jobs
 
 You can change any of the filling functionality in ‘CaloTriggerSegments.cpp’ that is needed 
